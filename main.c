@@ -1,6 +1,7 @@
 ﻿#pragma warning( disable : 4996 )
 
 #include "game_api.h"
+#include "setting.h"
 
 static int g_status;
 static HANDLE g_screen[2];
@@ -14,7 +15,7 @@ void init()
 	g_cur_screen = 0;
 	g_cur_game = 0;
 
-	init_screen(g_screen, 40, 15);
+	init_screen(g_screen, kWidth, kHeight);
 	hide_cursor(g_screen);
 
 	g_status = kStatus_Select;
@@ -48,19 +49,18 @@ void update()
 
 void render()
 {
-	clear_screen(g_screen, g_cur_screen, 40, 15);
+	clear_screen(g_screen, g_cur_screen, kWidth, kHeight);
 
 	if (g_status == kStatus_Select) {
-		char title[] = "미니게임 모음";
-		print_screen(g_screen, g_cur_screen, 40 / 2 - strlen(title) / 2, 15 / 4, title);
+		print_screen(g_screen, g_cur_screen, kWidth / 2 - strlen(kTitle) / 2, kHeight / 4, kTitle);
 
 		for (int i = 0; i < 5; i++)
 		{
 			if (g_cur_game == i)
-				print_screen(g_screen, g_cur_screen, 40 / 2 - 5, 15 / 2 + i, "▶");
+				print_screen(g_screen, g_cur_screen, kWidth / 2 - 5, kHeight / 2 + i, "▶");
 			else
-				print_screen(g_screen, g_cur_screen, 40 / 2 - 5, 15 / 2 + i, "▷");
-			print_screen(g_screen, g_cur_screen, 40 / 2 - 2, 15 / 2 + i, g_game_list[i]);
+				print_screen(g_screen, g_cur_screen, kWidth / 2 - 5, kHeight / 2 + i, "▷");
+			print_screen(g_screen, g_cur_screen, kWidth / 2 - 2, kHeight / 2 + i, g_game_list[i]);
 		}
 	}
 
