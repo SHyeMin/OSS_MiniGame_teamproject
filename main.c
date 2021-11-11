@@ -24,7 +24,24 @@ void init()
 
 void update()
 {
+	if (g_status == kStatus_Select) {
+		if (GetAsyncKeyState(VK_UP) & 0x0001)
+		{
+			g_cur_game -= 1;
+		}
+		else if (GetAsyncKeyState(VK_DOWN) & 0x0001)
+		{
+			g_cur_game += 1;
+		}
+		else if (GetAsyncKeyState(VK_RETURN) & 0x0001)
+		{
+		}
 
+		if (g_cur_game < 0)
+			g_cur_game = 4;
+		else if (g_cur_game > 4)
+			g_cur_game = 0;
+	}
 }
 
 void render()
