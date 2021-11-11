@@ -35,6 +35,8 @@ void update()
 		}
 		else if (GetAsyncKeyState(VK_RETURN) & 0x0001)
 		{
+			if (g_cur_game == 4)
+				g_status = kStatus_End;
 		}
 
 		if (g_cur_game < 0)
@@ -69,7 +71,7 @@ int main()
 {
 	init();
 
-	while (1)
+	while (g_status != kStatus_End)
 	{
 		update();
 		render();
