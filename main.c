@@ -2,6 +2,7 @@
 
 #include "game_api.h"
 #include "setting.h"
+#include "rythm_game.h"
 
 static int g_status;
 static HANDLE g_screen[2];
@@ -36,7 +37,9 @@ void update()
 		}
 		else if (GetAsyncKeyState(VK_RETURN) & 0x0001)
 		{
-			if (g_cur_game == 4)
+			if (g_cur_game == 3)
+				rg_main();
+			else if (g_cur_game == 4)
 				g_status = kStatus_End;
 		}
 
