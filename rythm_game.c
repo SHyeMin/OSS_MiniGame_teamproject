@@ -2,6 +2,8 @@
 
 #include "rythm_game.h"
 
+const char kRgTitle[] = "∏ÆµÎ∞‘¿”";
+
 static int g_rg_status;
 static HANDLE g_rg_screen[2];
 static int g_rg_cur_screen;
@@ -28,9 +30,32 @@ void rg_update()
 
 }
 
+void rg_show_title()
+{
+    print_screen(g_rg_screen, g_rg_cur_screen, g_cur_width / 2 - strlen(kRgTitle) / 2, g_cur_height / 4, kRgTitle);
+}
+
+void rg_show_list()
+{
+    for (int i = 0; i < 3; i++)
+    {
+        if (g_rg_cur_sel == i)
+            print_screen(g_rg_screen, g_rg_cur_screen, kWidth / 2 - 5, kHeight / 2 + i, "¢∫");
+        else
+            print_screen(g_rg_screen, g_rg_cur_screen, kWidth / 2 - 5, kHeight / 2 + i, "¢π");
+        print_screen(g_rg_screen, g_rg_cur_screen, g_cur_width / 2 - 2, g_cur_height / 2 + i, g_rg_sel_list[i]);
+    }
+}
+
 void rg_render()
 {
     clear_screen(g_rg_screen, g_rg_cur_screen, g_cur_width, g_cur_height);
+
+    if (g_rg_status == kStatus_Select)
+    {
+        rg_show_title();
+        rg_show_list();
+    }
 
     flip_screen(g_rg_screen, &g_rg_cur_screen);
 }
