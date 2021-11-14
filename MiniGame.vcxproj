@@ -141,9 +141,11 @@
   <ItemGroup>
     <ClCompile Include="game_api.c" />
     <ClCompile Include="main.c" />
+    <ClCompile Include="rythm_game.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game_api.h" />
+    <ClInclude Include="rythm_game.h" />
     <ClInclude Include="setting.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
