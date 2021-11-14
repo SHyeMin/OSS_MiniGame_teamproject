@@ -2,7 +2,7 @@
 
 #include "game_api.h"
 #include "setting.h"
-#include "rythm_game.h"
+#include "rhythm.h"
 
 static int g_status;
 static HANDLE g_screen[2];

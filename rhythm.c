@@ -1,6 +1,6 @@
 #pragma warning( disable : 4996 )
 
-#include "rythm_game.h"
+#include "rhythm.h"
 
 const char kRgTitle[] = "∏ÆµÎ∞‘¿”";
 

@@ -21,7 +21,7 @@
     <ClCompile Include="game_api.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="rythm_game.c">
+    <ClCompile Include="rhythm.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -32,7 +32,7 @@
     <ClInclude Include="setting.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="rythm_game.h">
+    <ClInclude Include="rhythm.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
