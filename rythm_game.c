@@ -27,7 +27,22 @@ void rg_init() {
 
 void rg_update()
 {
-
+    if (g_rg_status == kStatus_Select) 
+    {
+        if (GetAsyncKeyState(VK_UP) & 0x0001)
+        {
+            g_rg_cur_sel -= 1;
+        }
+        else if (GetAsyncKeyState(VK_DOWN) & 0x0001)
+        {
+            g_rg_cur_sel += 1;
+        }
+        
+        if (g_rg_cur_sel < 0)
+            g_rg_cur_sel = 2;
+        else if (g_rg_cur_sel > 2)
+            g_rg_cur_sel = 0;
+    }
 }
 
 void rg_show_title()
