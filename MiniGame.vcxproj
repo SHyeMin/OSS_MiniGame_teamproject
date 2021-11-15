@@ -142,11 +142,13 @@
     <ClCompile Include="game_api.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="rhythm.c" />
+    <ClCompile Include="mine.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game_api.h" />
     <ClInclude Include="rhythm.h" />
     <ClInclude Include="setting.h" />
+    <ClInclude Include="mine.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
