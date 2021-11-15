@@ -38,6 +38,11 @@ void mg_update()
         {
             g_mg_cur_sel += 1;
         }
+        else if (GetAsyncKeyState(VK_RETURN) & 0x0001)
+        {
+            if (g_mg_cur_sel == 3)
+                g_mg_status = kStatus_End;
+        }
 
         if (g_mg_cur_sel < 0)
             g_mg_cur_sel = 3;
