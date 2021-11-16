@@ -139,12 +139,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="blackjack.c" />
     <ClCompile Include="game_api.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="rhythm.c" />
     <ClCompile Include="mine.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="blackjack.h" />
     <ClInclude Include="game_api.h" />
     <ClInclude Include="rhythm.h" />
     <ClInclude Include="setting.h" />
