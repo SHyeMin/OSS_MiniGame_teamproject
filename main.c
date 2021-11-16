@@ -4,11 +4,12 @@
 #include "setting.h"
 #include "rhythm.h"
 #include "mine.h"
+#include "blackjack.h"
 
 static int g_status;
 static HANDLE g_screen[2];
 static int g_cur_screen;
-static char g_game_list[5][20] = { "게임1", "게임2", "게임3", "게임4", "종료하기"};
+static char g_game_list[5][20] = { "지뢰찾기", "게임2", "블랙잭", "리듬게임", "종료하기"};
 static int g_cur_game;
 
 void init()
