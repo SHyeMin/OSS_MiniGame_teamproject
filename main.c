@@ -41,6 +41,8 @@ void update()
 		{
 			if (g_cur_game == 0)
 				mg_main();
+			else if (g_cur_game == 2)
+				bj_main();
 			else if (g_cur_game == 3)
 				rg_main();
 			else if (g_cur_game == 4)
