@@ -349,6 +349,12 @@ int rg_main()
         old_time = clock();
         rg_update();
         rg_render();
+        while (1)
+        {
+            cur_time = clock();
+            if (cur_time - old_time > (1 / 60 * 1000))
+                break;
+        }
     }
 
     release(g_rg_screen);
