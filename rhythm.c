@@ -4,15 +4,20 @@
 
 const char kRgTitle[] = "리듬게임";
 
+const char kDiffList[4][20] = { "easy", "normal", "hard", "돌아가기" };
+
 static int g_rg_status;
 static HANDLE g_rg_screen[2];
 static int g_rg_cur_screen;
 static char g_rg_sel_list[4][20] = { "시작", "랭킹", "돌아가기" };
+
 static int g_rg_cur_sel;
+static int g_rg_cur_diff;
 static int g_cur_width;
 static int g_cur_height;
 
-void rg_init() {
+void rg_init() 
+{
     g_rg_status = kStatus_Init;
     g_rg_cur_screen = 0;
     g_rg_cur_sel = 0;
@@ -23,6 +28,20 @@ void rg_init() {
     hide_cursor(g_rg_screen);
 
     g_rg_status = kStatus_Select;
+}
+
+void rg_mini()
+{
+    g_cur_width = kWidth;
+    g_cur_height = kHeight;
+
+    change_screen(g_rg_screen, g_cur_width, g_cur_height);
+}
+
+void rg_select_screen()
+{
+    g_rg_status = kStatus_Select;
+    rg_mini();
 }
 
 void rg_update()
@@ -42,6 +61,7 @@ void rg_update()
             switch (g_rg_cur_sel)
             {
             case 0:
+                g_rg_status = kStatus_Diff;
                 break;
             case 1:
                 break;
@@ -55,6 +75,27 @@ void rg_update()
             g_rg_cur_sel = 2;
         else if (g_rg_cur_sel > 2)
             g_rg_cur_sel = 0;
+    }
+    else if (g_rg_status == kStatus_Diff)
+    {
+        if (GetAsyncKeyState(VK_UP) & 0x0001)
+        {
+            g_rg_cur_diff -= 1;
+        }
+        else if (GetAsyncKeyState(VK_DOWN) & 0x0001)
+        {
+            g_rg_cur_diff += 1;
+        }
+        else if (GetAsyncKeyState(VK_RETURN) & 0x0001)
+        {
+            if (g_rg_cur_diff == 3)
+                rg_select_screen();
+        }
+
+        if (g_rg_cur_diff < 0)
+            g_rg_cur_diff = 3;
+        else if (g_rg_cur_diff > 3)
+            g_rg_cur_diff = 0;
     }
 }
 
@@ -75,6 +116,18 @@ void rg_show_list()
     }
 }
 
+void rg_show_diff_list()
+{
+    for (int i = 0; i < 4; i++)
+    {
+        if (g_rg_cur_diff == i)
+            print_screen(g_rg_screen, g_rg_cur_screen, g_cur_width / 2 - 5, g_cur_height / 2 + i, "▶");
+        else
+            print_screen(g_rg_screen, g_rg_cur_screen, g_cur_width / 2 - 5, g_cur_height / 2 + i, "▷");
+        print_screen(g_rg_screen, g_rg_cur_screen, g_cur_width / 2 - 2, g_cur_height / 2 + i, kDiffList[i]);
+    }
+}
+
 void rg_render()
 {
     clear_screen(g_rg_screen, g_rg_cur_screen, g_cur_width, g_cur_height);
@@ -83,6 +136,11 @@ void rg_render()
     {
         rg_show_title();
         rg_show_list();
+    }
+    else if (g_rg_status == kStatus_Diff)
+    {
+        rg_show_title();
+        rg_show_diff_list();
     }
 
     flip_screen(g_rg_screen, &g_rg_cur_screen);

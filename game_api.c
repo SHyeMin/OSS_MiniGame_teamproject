@@ -19,6 +19,26 @@ void init_screen(HANDLE screen[], int width, int height)
     }
 }
 
+void change_screen(HANDLE screen[], int width, int height)
+{
+    COORD coord_size;
+    SMALL_RECT rect_size;
+
+    rect_size.Left = rect_size.Top = 0;
+    rect_size.Right = width - 1;
+    rect_size.Bottom = height - 1;
+
+    coord_size.X = width;
+    coord_size.Y = height;
+
+
+    for (int i = 0; i < 2; i++) {
+        SetConsoleWindowInfo(screen[i], TRUE, &rect_size);
+        SetConsoleScreenBufferSize(screen[i], coord_size);
+        SetConsoleWindowInfo(screen[i], TRUE, &rect_size);
+    }
+}
+
 void hide_cursor(HANDLE screen[])
 {
     CONSOLE_CURSOR_INFO cci;
