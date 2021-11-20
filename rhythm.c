@@ -25,6 +25,8 @@ static HANDLE run_handle;
 static HANDLE key_handle;
 static HANDLE skip_handle;
 
+static Player g_rg_players[3][1000];
+
 static int g_rg_cur_sel;
 static int g_rg_cur_diff;
 static int g_cur_width;
@@ -35,6 +37,7 @@ static int g_miss;
 static int g_combo;
 static float g_acc;
 static int g_hp;
+static int g_rg_player_size[3];
 static Note g_note[21];
 static clock_t g_last_create_time;
 static clock_t g_last_move_time;
@@ -90,6 +93,66 @@ void rg_max(int size)
     change_screen(g_rg_screen, g_cur_width, g_cur_height);
 }
 
+Player rg_make_player(char* name, int score)
+{
+    Player p;
+    strcpy(p.name, name);
+    p.score = score;
+
+    return p;
+}
+
+void rg_swap(Player* arr, int a, int b)
+{
+    Player temp = arr[a];
+    arr[a] = arr[b];
+    arr[b] = temp;
+}
+
+void rg_rank_sort(Player* arr, int m, int n)
+{
+    if (m < n)
+    {
+        int key = m;
+        int i = m + 1;
+        int j = n;
+
+        while (i <= j)
+        {
+            while (i <= n && arr[i].score >= arr[key].score)
+                i++;
+            while (j > m && arr[j].score <= arr[key].score)
+                j--;
+            if (i > j)
+                rg_swap(arr, j, key);
+            else
+                rg_swap(arr, i, j);
+        }
+
+        rg_rank_sort(arr, m, j - 1);
+        rg_rank_sort(arr, j + 1, n);
+    }
+}
+
+void save_data(char* name)
+{
+    FILE* fp;
+    char buffer[100];
+
+    fp = fopen("data.txt", "a+");
+
+    if (fp == NULL)
+        return;
+
+    Player p = rg_make_player(name, g_score);
+    g_rg_players[g_rg_cur_diff][g_rg_player_size[g_rg_cur_diff]++] = p;
+    rg_rank_sort(g_rg_players[g_rg_cur_diff], 0, g_rg_player_size[g_rg_cur_diff] - 1);
+
+    fprintf(fp, "%s:%d:%d\n", name, g_rg_cur_diff, g_score);
+
+    fclose(fp);
+}
+
 void rg_select_screen()
 {
     g_rg_status = kStatus_Select;
@@ -117,6 +180,7 @@ void rg_save_screen()
     printf("´Ð³×ÀÓ : ");
 
     gets_s(name, sizeof(name));
+    save_data(name);
 
     rg_select_screen();
 }

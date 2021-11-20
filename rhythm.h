@@ -15,4 +15,10 @@ typedef struct
     int visible;
 } Note;
 
+typedef struct
+{
+    char name[20];
+    int score;
+} Player;
+
 int rg_main();
