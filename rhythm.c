@@ -11,11 +11,15 @@ const int kRgWidth[] = { 46, 56, 66, 100 };
 const int kRgHeight = 25;
 const int kRgMapWidth[] = { 30, 40, 50 };
 const int kRgMapLine[] = { 3, 4, 5 };
+const int kRgNoteGoal = 21;
 
 static int g_rg_status;
-static HANDLE g_rg_screen[2];
 static int g_rg_cur_screen;
+
 static char g_rg_sel_list[4][20] = { "시작", "랭킹", "돌아가기" };
+
+static HANDLE g_rg_screen[2];
+static HANDLE run_handle;
 
 static int g_rg_cur_sel;
 static int g_rg_cur_diff;
@@ -27,6 +31,9 @@ static int g_miss;
 static int g_combo;
 static float g_acc;
 static int g_hp;
+static Note g_note[21];
+static clock_t g_last_create_time;
+static clock_t g_last_move_time;
 
 void rg_init() 
 {
@@ -42,6 +49,58 @@ void rg_init()
     g_rg_status = kStatus_Select;
 }
 
+void rg_create_note()
+{
+    if (clock() - g_last_create_time > 300)
+    {
+        for (int i = 0; i < kRgNoteGoal; i++)
+        {
+            if (!g_note[i].visible)
+            {
+                g_note[i].x = rand() % kRgMapLine[g_rg_cur_diff];
+                g_note[i].y = 1;
+                g_note[i].visible = TRUE;
+                break;
+            }
+        }
+        g_last_create_time = clock();
+    }
+}
+
+void rg_move_note()
+{
+    if (clock() - g_last_move_time > 100)
+    {
+        for (int i = 0; i < kRgNoteGoal; i++)
+        {
+            if (g_note[i].visible)
+            {
+                g_note[i].y = g_note[i].y + 1;
+
+                if (g_note[i].y - 1 == kRgNoteGoal)
+                {
+                    g_note[i].visible = FALSE;
+                    g_miss++;
+                    g_hp--;
+                    g_combo = 0;
+                }
+            }
+        }
+        g_last_move_time = clock();
+    }
+}
+
+unsigned __stdcall rg_running_game(void* a)
+{
+    while (g_rg_status == kStatus_Play)
+    {
+        rg_move_note();
+        rg_create_note();
+    }
+
+    return 0;
+}
+
 void rg_game_init()
 {
     g_score = 0;
@@ -49,6 +108,11 @@ void rg_game_init()
     g_miss = 0;
     g_combo = 0;
     g_hp = 10;
+
+    for (int i = 0; i < kRgNoteGoal; i++)
+        g_note[i].visible = FALSE;
+
+    run_handle = (HANDLE)_beginthreadex(NULL, 0, (_beginthreadex_proc_type)rg_running_game, 0, 0, NULL);
 }
 
 void rg_mini()
@@ -218,6 +282,13 @@ void rg_show_key()
         print_screen(g_rg_screen, g_rg_cur_screen, 44, g_cur_height - 2, "T(t)");
 }
 
+void rg_show_note()
+{
+    for (int i = 0; i < kRgNoteGoal; i++)
+        if (g_note[i].visible)
+            print_screen(g_rg_screen, g_rg_cur_screen, g_note[i].x * 10 + 2, g_note[i].y, "■■■■");
+}
+
 void rg_show_info()
 {
     char score[15];
@@ -256,6 +327,7 @@ void rg_render()
     {
         rg_show_map();
         rg_show_key();
+        rg_show_note();
         rg_show_info();
     }
 
