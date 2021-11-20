@@ -23,6 +23,7 @@ static char g_rg_sel_list[4][20] = { "시작", "랭킹", "돌아가기" };
 static HANDLE g_rg_screen[2];
 static HANDLE run_handle;
 static HANDLE key_handle;
+static HANDLE skip_handle;
 
 static int g_rg_cur_sel;
 static int g_rg_cur_diff;
@@ -38,8 +39,14 @@ static Note g_note[21];
 static clock_t g_last_create_time;
 static clock_t g_last_move_time;
 
+unsigned __stdcall rg_running_game(void* a);
+unsigned __stdcall rg_push_key(void* a);
+unsigned __stdcall rg_skip_key(void* a);
+
 void rg_init() 
 {
+    skip_handle = (HANDLE)_beginthreadex(NULL, 0, (_beginthreadex_proc_type)rg_skip_key, 0, 0, NULL);
+
     g_rg_status = kStatus_Init;
     g_rg_cur_screen = 0;
     g_rg_cur_sel = 0;
@@ -50,6 +57,68 @@ void rg_init()
     hide_cursor(g_rg_screen);
 
     g_rg_status = kStatus_Select;
+}
+
+void rg_game_init()
+{
+    g_score = 0;
+    g_success = 0;
+    g_miss = 0;
+    g_combo = 0;
+    g_hp = 10;
+
+    for (int i = 0; i < kRgNoteGoal; i++)
+        g_note[i].visible = FALSE;
+
+    run_handle = (HANDLE)_beginthreadex(NULL, 0, (_beginthreadex_proc_type)rg_running_game, 0, 0, NULL);
+    key_handle = (HANDLE)_beginthreadex(NULL, 0, (_beginthreadex_proc_type)rg_push_key, 0, 0, NULL);
+}
+
+void rg_mini()
+{
+    g_cur_width = kWidth;
+    g_cur_height = kHeight;
+
+    change_screen(g_rg_screen, g_cur_width, g_cur_height);
+}
+
+void rg_max(int size)
+{
+    g_cur_width = kRgWidth[size];
+    g_cur_height = kRgHeight;
+
+    change_screen(g_rg_screen, g_cur_width, g_cur_height);
+}
+
+void rg_select_screen()
+{
+    g_rg_status = kStatus_Select;
+    rg_mini();
+}
+
+void rg_game_screen()
+{
+    rg_game_init();
+
+    g_rg_status = kStatus_Play;
+    rg_max(g_rg_cur_diff);
+}
+
+void rg_save_screen()
+{
+    g_rg_status = kStatus_Save;
+    HANDLE hIn = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleActiveScreenBuffer(hIn);
+    char name[20];
+    DWORD dw;
+    COORD cursor_position = { 0, 0 };
+
+    system("cls");
+    printf("닉네임 : ");
+
+    gets_s(name, sizeof(name));
+
+    rg_select_screen();
 }
 
 void rg_create_note()
@@ -86,6 +155,8 @@ void rg_move_note()
                     g_miss++;
                     g_hp--;
                     g_combo = 0;
+                    if (g_hp == 0)
+                        rg_save_screen();
                 }
             }
         }
@@ -158,49 +229,20 @@ unsigned __stdcall rg_push_key(void* a)
     return 0;
 }
 
-void rg_game_init()
+unsigned __stdcall rg_skip_key(void* a)
 {
-    g_score = 0;
-    g_success = 0;
-    g_miss = 0;
-    g_combo = 0;
-    g_hp = 10;
+    char c;
+    while (1)
+    {
 
-    for (int i = 0; i < kRgNoteGoal; i++)
-        g_note[i].visible = FALSE;
+        while (_kbhit())
+        {
+            c = _getch();
+        }
+        Sleep(10);
+    }
 
-    run_handle = (HANDLE)_beginthreadex(NULL, 0, (_beginthreadex_proc_type)rg_running_game, 0, 0, NULL);
-    key_handle = (HANDLE)_beginthreadex(NULL, 0, (_beginthreadex_proc_type)rg_push_key, 0, 0, NULL);
-}
-
-void rg_mini()
-{
-    g_cur_width = kWidth;
-    g_cur_height = kHeight;
-
-    change_screen(g_rg_screen, g_cur_width, g_cur_height);
-}
-
-void rg_max(int size)
-{
-    g_cur_width = kRgWidth[size];
-    g_cur_height = kRgHeight;
-
-    change_screen(g_rg_screen, g_cur_width, g_cur_height);
-}
-
-void rg_select_screen()
-{
-    g_rg_status = kStatus_Select;
-    rg_mini();
-}
-
-void rg_game_screen()
-{
-    rg_game_init();
-
-    g_rg_status = kStatus_Play;
-    rg_max(g_rg_cur_diff);
+    return 0;
 }
 
 void rg_update()
@@ -374,6 +416,9 @@ void rg_show_info()
 
 void rg_render()
 {
+    if (g_rg_status == kStatus_Save)
+        return;
+
     clear_screen(g_rg_screen, g_rg_cur_screen, g_cur_width, g_cur_height);
 
     if (g_rg_status == kStatus_Select)
@@ -393,6 +438,9 @@ void rg_render()
         rg_show_note();
         rg_show_info();
     }
+
+    if (g_rg_status == kStatus_Save)
+        return;
 
     flip_screen(g_rg_screen, &g_rg_cur_screen);
 }

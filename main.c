@@ -28,6 +28,9 @@ void init()
 
 void update()
 {
+	char c;
+	while (_kbhit()) c = _getch();
+
 	if (g_status == kStatus_Select) {
 		if (GetAsyncKeyState(VK_UP) & 0x0001)
 		{

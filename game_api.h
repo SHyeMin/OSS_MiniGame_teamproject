@@ -7,6 +7,7 @@ enum eStatusCode
     kStatus_Select,
     kStatus_Diff,
     kStatus_Play,
+    kStatus_Save,
     kStatus_End
 };
 typedef int StatusCode;
