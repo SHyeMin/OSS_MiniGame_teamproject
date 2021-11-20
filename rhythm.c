@@ -46,6 +46,8 @@ unsigned __stdcall rg_running_game(void* a);
 unsigned __stdcall rg_push_key(void* a);
 unsigned __stdcall rg_skip_key(void* a);
 
+void load_data();
+
 void rg_init() 
 {
     skip_handle = (HANDLE)_beginthreadex(NULL, 0, (_beginthreadex_proc_type)rg_skip_key, 0, 0, NULL);
@@ -58,6 +60,7 @@ void rg_init()
 
     init_screen(g_rg_screen, g_cur_width, g_cur_height);
     hide_cursor(g_rg_screen);
+    load_data();
 
     g_rg_status = kStatus_Select;
 }
@@ -149,6 +152,36 @@ void save_data(char* name)
     rg_rank_sort(g_rg_players[g_rg_cur_diff], 0, g_rg_player_size[g_rg_cur_diff] - 1);
 
     fprintf(fp, "%s:%d:%d\n", name, g_rg_cur_diff, g_score);
+
+    fclose(fp);
+}
+
+void load_data()
+{
+    FILE* fp;
+    char* name;
+    char buffer[100];
+    int diff, score;
+
+    fp = fopen("data.txt", "r");
+
+    if (fp == NULL)
+        return;
+
+    memset(g_rg_player_size, 0, sizeof(int) * 3);
+
+    while (fgets(buffer, sizeof(buffer), fp) != NULL) {
+        name = strtok(buffer, ":");
+        diff = atoi(strtok(NULL, ":"));
+        score = atoi(strtok(NULL, ":"));
+        g_rg_players[diff][g_rg_player_size[diff]++] = rg_make_player(name, score);
+
+        memset(buffer, 0, sizeof(buffer));
+    }
+
+    rg_rank_sort(g_rg_players[0], 0, g_rg_player_size[0] - 1);
+    rg_rank_sort(g_rg_players[1], 0, g_rg_player_size[1] - 1);
+    rg_rank_sort(g_rg_players[2], 0, g_rg_player_size[2] - 1);
 
     fclose(fp);
 }
