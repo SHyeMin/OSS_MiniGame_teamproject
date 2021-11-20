@@ -16,10 +16,13 @@ const int kRgNoteGoal = 21;
 static int g_rg_status;
 static int g_rg_cur_screen;
 
+static byte g_selected_key;
+
 static char g_rg_sel_list[4][20] = { "시작", "랭킹", "돌아가기" };
 
 static HANDLE g_rg_screen[2];
 static HANDLE run_handle;
+static HANDLE key_handle;
 
 static int g_rg_cur_sel;
 static int g_rg_cur_diff;
@@ -90,12 +93,66 @@ void rg_move_note()
     }
 }
 
+void rg_hit_note()
+{
+    for (int i = 0; i < kRgNoteGoal; i++)
+    {
+        if (g_note[i].visible)
+        {
+            if (g_note[i].y == kRgNoteGoal)
+            {
+                if (g_note[i].x == 0 && (g_selected_key & 0x1) || g_note[i].x == 1 && (g_selected_key & 0x2)
+                    || g_note[i].x == 2 && (g_selected_key & 0x4) || g_note[i].x == 3 && (g_selected_key & 0x8)) {
+                    g_note[i].visible = FALSE;
+                    g_combo++;
+                    g_success++;
+                    g_score += g_combo;
+                    if (g_combo == 2)
+                    {
+                        g_hp++;
+                        if (g_hp > 10)
+                            g_hp = 10;
+                    }
+                }
+            }
+        }
+    }
+    g_selected_key = 0;
+    g_acc = (g_success == 0 && g_miss == 0) ? 100.0f : (float)g_success / (g_success + g_miss) * 100;
+}
+
 unsigned __stdcall rg_running_game(void* a)
 {
     while (g_rg_status == kStatus_Play)
     {
         rg_move_note();
         rg_create_note();
+    }
+
+    return 0;
+}
+
+unsigned __stdcall rg_push_key(void* a)
+{
+    while (g_rg_status == kStatus_Play)
+    {
+        if (GetAsyncKeyState(kKey_Q) & 0x0001)
+            g_selected_key |= 0x1;
+
+        if (GetAsyncKeyState(kKey_W) & 0x0001)
+            g_selected_key |= 0x2;
+
+        if (GetAsyncKeyState(kKey_E) & 0x0001)
+            g_selected_key |= 0x4;
+
+        if (GetAsyncKeyState(kKey_R) & 0x0001)
+            g_selected_key |= 0x8;
+
+        if (GetAsyncKeyState(kKey_T) & 0x0001)
+            g_selected_key |= 0x10;
+
+
+        rg_hit_note();
     }
 
     return 0;
@@ -113,6 +170,7 @@ void rg_game_init()
         g_note[i].visible = FALSE;
 
     run_handle = (HANDLE)_beginthreadex(NULL, 0, (_beginthreadex_proc_type)rg_running_game, 0, 0, NULL);
+    key_handle = (HANDLE)_beginthreadex(NULL, 0, (_beginthreadex_proc_type)rg_push_key, 0, 0, NULL);
 }
 
 void rg_mini()

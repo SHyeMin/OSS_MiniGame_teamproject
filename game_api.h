@@ -11,6 +11,16 @@ enum eStatusCode
 };
 typedef int StatusCode;
 
+enum eKeyCode
+{
+    kKey_Q = 81,
+    kKey_W = 87,
+    kKey_E = 69,
+    kKey_R = 82,
+    kKey_T = 84
+};
+typedef int KeyCode;
+
 void init_screen(HANDLE screen[], int width, int height);
 void change_screen(HANDLE screen[], int width, int height);
 void hide_cursor(HANDLE screen[]);
