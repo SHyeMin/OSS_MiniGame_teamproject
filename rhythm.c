@@ -37,7 +37,20 @@ void rg_update()
         {
             g_rg_cur_sel += 1;
         }
-        
+        else if (GetAsyncKeyState(VK_RETURN) & 0x0001)
+        {
+            switch (g_rg_cur_sel)
+            {
+            case 0:
+                break;
+            case 1:
+                break;
+            case 2:
+                g_rg_status = kStatus_End;
+                break;
+            }
+        }
+
         if (g_rg_cur_sel < 0)
             g_rg_cur_sel = 2;
         else if (g_rg_cur_sel > 2)
