@@ -200,6 +200,11 @@ void rg_update()
         else if (g_rg_cur_diff > 3)
             g_rg_cur_diff = 0;
     }
+    else if (g_rg_status == kStatus_Play)
+    {
+        if (GetAsyncKeyState(VK_ESCAPE) & 0x0001)
+            rg_select_screen();
+    }
 }
 
 void rg_show_title()
