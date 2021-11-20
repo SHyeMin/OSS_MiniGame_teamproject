@@ -200,6 +200,12 @@ void rg_game_screen()
     rg_max(g_rg_cur_diff);
 }
 
+void rg_rank_screen()
+{
+    g_rg_status = kStatus_Rank;
+    rg_max(3);
+}
+
 void rg_save_screen()
 {
     g_rg_status = kStatus_Save;
@@ -362,6 +368,7 @@ void rg_update()
                 g_rg_status = kStatus_Diff;
                 break;
             case 1:
+                rg_rank_screen();
                 break;
             case 2:
                 g_rg_status = kStatus_End;
@@ -398,6 +405,11 @@ void rg_update()
             g_rg_cur_diff = 0;
     }
     else if (g_rg_status == kStatus_Play)
+    {
+        if (GetAsyncKeyState(VK_ESCAPE) & 0x0001)
+            rg_select_screen();
+    }
+    else if (g_rg_status == kStatus_Rank)
     {
         if (GetAsyncKeyState(VK_ESCAPE) & 0x0001)
             rg_select_screen();
@@ -511,6 +523,45 @@ void rg_show_info()
     print_screen(g_rg_screen, g_rg_cur_screen, kRgMapWidth[g_rg_cur_diff] + 3, 19, "ESC: 종료");
 }
 
+void rg_show_rank()
+{
+
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < g_cur_height; j++)
+        {
+            int x = kRgWidth[3] / 3 * i;
+            if (i == 3)
+                x--;
+
+            print_screen(g_rg_screen, g_rg_cur_screen, x, j, "┃");
+
+            if (j == 0 && i != 3)
+                print_screen(g_rg_screen, g_rg_cur_screen, x + 2, 0, kDiffList[i]);
+        }
+    }
+
+    for (int i = 0; i < 3; i++)
+    {
+        for (int j = 0; j < 10; j++)
+        {
+            if (j >= g_rg_player_size[i])
+                break;
+            int x = kRgWidth[3] / 3 * i;
+            if (i == 3)
+                x--;
+
+            Player p = g_rg_players[i][j];
+            char msg[30];
+            sprintf(msg, "%d위: %s %d", j + 1, p.name, p.score);
+
+            print_screen(g_rg_screen, g_rg_cur_screen, x + 2, j * 2 + 2, msg);
+        }
+    }
+
+    print_screen(g_rg_screen, g_rg_cur_screen, g_cur_width - strlen("ESC: 돌어가기") - 2, g_cur_height - 1, "ESC: 돌아가기");
+}
+
 void rg_render()
 {
     if (g_rg_status == kStatus_Save)
@@ -534,6 +585,10 @@ void rg_render()
         rg_show_key();
         rg_show_note();
         rg_show_info();
+    }
+    else if (g_rg_status == kStatus_Rank)
+    {
+        rg_show_rank();
     }
 
     if (g_rg_status == kStatus_Save)
