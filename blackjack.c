@@ -1,83 +1,83 @@
 #pragma warning( disable : 4996 )
 #include "blackjack.h"
 
-const char kBjTitle[] = "블랙잭"; // 게임 타이틀
-static int g_bj_status;
-static HANDLE g_bj_screen[2];
-static int g_bj_cur_screen;
-static char g_bj_sel_list[4][20] = { "시작", "규칙", "돌아가기" }; // 타이틀 메뉴 리스트
-static int g_bj_cur_sel;
-static int g_cur_width;
-static int g_cur_height;
+const char kBjTitle[] = "블랙잭";
+static int titleStatus;
+static HANDLE bjTitleScreen[2];
+static int titleScreenIndex;
+static char titleMenuList[4][20] = { "시작", "규칙", "돌아가기" };
+static int titleMenuIndex;
+static int screenWidth;
+static int screenHeight;
 
-void bj_init() {
-    g_bj_status = kStatus_Init;
-    g_bj_cur_screen = 0;
-    g_bj_cur_sel = 0;
-    g_cur_width = kWidth;
-    g_cur_height = kHeight;
+void initTitleScreen() {
+    titleStatus = kStatus_Init;
+    titleScreenIndex = 0;
+    titleMenuIndex = 0;
+    screenWidth = kWidth;
+    screenHeight = kHeight;
 
-    init_screen(g_bj_screen, g_cur_width, g_cur_height);
-    hide_cursor(g_bj_screen);
+    init_screen(bjTitleScreen, screenWidth, screenHeight);
+    hide_cursor(bjTitleScreen);
 
-    g_bj_status = kStatus_Select;
+    titleStatus = kStatus_Select;
 }
 
-void bj_cursor_update() {
-    if (g_bj_status == kStatus_Select)
+void updateCursor() {
+    if (titleStatus == kStatus_Select)
     {
         if (GetAsyncKeyState(VK_UP) & 0x0001) {
-            g_bj_cur_sel -= 1;
+            titleMenuIndex -= 1;
         }
         else if (GetAsyncKeyState(VK_DOWN) & 0x0001) {
-            g_bj_cur_sel += 1;
+            titleMenuIndex += 1;
         }
         else if (GetAsyncKeyState(VK_RETURN) & 0x0001) {
-			if (g_bj_cur_sel == 2) {
-                g_bj_status = kStatus_End;
+			if (titleMenuIndex == 2) {
+                titleStatus = kStatus_End;
             }
         }
 
-		if (g_bj_cur_sel < 0) { g_bj_cur_sel = 2; }
-		else if (g_bj_cur_sel > 2) { g_bj_cur_sel = 0; }
+		if (titleMenuIndex < 0) { titleMenuIndex = 2; }
+		else if (titleMenuIndex > 2) { titleMenuIndex = 0; }
     }
 }
 
-void bj_show_title_screen() {
-    print_screen(g_bj_screen, g_bj_cur_screen, g_cur_width / 2 - strlen(kBjTitle) / 2, g_cur_height / 4, kBjTitle);
+void showTitleScreen() {
+    print_screen(bjTitleScreen, titleScreenIndex, screenWidth / 2 - strlen(kBjTitle) / 2, screenHeight / 4, kBjTitle);
     
     for (int i = 0; i < 3; i++)
     {
-        if (g_bj_cur_sel == i) {
-            print_screen(g_bj_screen, g_bj_cur_screen, kWidth / 2 - 5, kHeight / 2 + i, "▶");
+        if (titleMenuIndex == i) {
+            print_screen(bjTitleScreen, titleScreenIndex, kWidth / 2 - 5, kHeight / 2 + i, "▶");
         }
         else {
-            print_screen(g_bj_screen, g_bj_cur_screen, kWidth / 2 - 5, kHeight / 2 + i, "▷");
+            print_screen(bjTitleScreen, titleScreenIndex, kWidth / 2 - 5, kHeight / 2 + i, "▷");
 		}
-        print_screen(g_bj_screen, g_bj_cur_screen, g_cur_width / 2 - 2, g_cur_height / 2 + i, g_bj_sel_list[i]);
+        print_screen(bjTitleScreen, titleScreenIndex, screenWidth / 2 - 2, screenHeight / 2 + i, titleMenuList[i]);
     }
 }
 
-void bj_cursor_render()
+void renderCursor()
 {
-    clear_screen(g_bj_screen, g_bj_cur_screen, g_cur_width, g_cur_height);
+    clear_screen(bjTitleScreen, titleScreenIndex, screenWidth, screenHeight);
 
-    if (g_bj_status == kStatus_Select)
+    if (titleStatus == kStatus_Select)
     {
-        bj_show_title_screen();
+        showTitleScreen();
     }
 
-    flip_screen(g_bj_screen, &g_bj_cur_screen);
+    flip_screen(bjTitleScreen, &titleScreenIndex);
 }
 
 int bj_main() {
-	bj_init();
+	initTitleScreen();
 
-	while (g_bj_status != kStatus_End) {
-        bj_cursor_update();
-        bj_cursor_render();
+	while (titleStatus != kStatus_End) {
+        updateCursor();
+        renderCursor();
     }
 
-    release(g_bj_screen);
+    release(bjTitleScreen);
 	return 0;
 }
