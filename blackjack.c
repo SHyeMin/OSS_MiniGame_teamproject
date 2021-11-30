@@ -1,9 +1,13 @@
 #pragma warning( disable : 4996 )
+#include <Windows.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "blackjack.h"
 
 const char kBjTitle[] = "블랙잭";
 static int titleStatus;
 static HANDLE bjTitleScreen[2];
+static HANDLE bjRuleScreen[2];
 static int titleScreenIndex;
 static char titleMenuList[4][20] = { "시작", "규칙", "돌아가기" };
 static int titleMenuIndex;
@@ -23,6 +27,20 @@ void initTitleScreen() {
     titleStatus = kStatus_Select;
 }
 
+void showRuleScreen() {
+    init_screen(bjRuleScreen, screenWidth, screenHeight);
+    hide_cursor(bjRuleScreen);
+    print_screen(bjRuleScreen, 0, 0, 0, "블랙잭 미니게임에 오신 것을 환영합니다!");
+	SetConsoleActiveScreenBuffer(bjRuleScreen[0]);
+
+    while (1) {
+		if (GetAsyncKeyState(VK_ESCAPE) & 0x0001) {
+            release(bjRuleScreen);
+            break;
+        }
+    }
+}
+
 void updateCursor() {
     if (titleStatus == kStatus_Select)
     {
@@ -33,7 +51,10 @@ void updateCursor() {
             titleMenuIndex += 1;
         }
         else if (GetAsyncKeyState(VK_RETURN) & 0x0001) {
-			if (titleMenuIndex == 2) {
+            if (titleMenuIndex == 1) {
+                showRuleScreen();
+            }
+            else if (titleMenuIndex == 2) {
                 titleStatus = kStatus_End;
             }
         }
@@ -43,7 +64,7 @@ void updateCursor() {
     }
 }
 
-void showTitleScreen() {
+void printTitleScreenCursor() {
     print_screen(bjTitleScreen, titleScreenIndex, screenWidth / 2 - strlen(kBjTitle) / 2, screenHeight / 4, kBjTitle);
     
     for (int i = 0; i < 3; i++)
@@ -64,7 +85,7 @@ void renderCursor()
 
     if (titleStatus == kStatus_Select)
     {
-        showTitleScreen();
+        printTitleScreenCursor();
     }
 
     flip_screen(bjTitleScreen, &titleScreenIndex);
