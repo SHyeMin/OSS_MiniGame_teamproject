@@ -220,9 +220,12 @@ void rg_save_screen()
     COORD cursor_position = { 0, 0 };
 
     system("cls");
-    printf("닉네임 : ");
 
-    gets_s(name, sizeof(name));
+    do {
+        printf("닉네임 : ");
+        gets_s(name, sizeof(name));
+    } while (strlen(name) == 0);
+
     save_data(name);
 
     rg_select_screen();
