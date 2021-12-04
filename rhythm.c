@@ -38,6 +38,8 @@ static int g_combo;
 static float g_acc;
 static int g_hp;
 static int g_rg_player_size[3];
+static int g_create_time;
+static int g_move_time;
 static Note g_note[21];
 static clock_t g_last_create_time;
 static clock_t g_last_move_time;
@@ -72,6 +74,8 @@ void rg_game_init()
     g_miss = 0;
     g_combo = 0;
     g_hp = 10;
+    g_create_time = 300;
+    g_move_time = 100;
 
     for (int i = 0; i < kRgNoteGoal; i++)
         g_note[i].visible = FALSE;
@@ -226,7 +230,7 @@ void rg_save_screen()
 
 void rg_create_note()
 {
-    if (clock() - g_last_create_time > 300)
+    if (clock() - g_last_create_time > g_create_time)
     {
         for (int i = 0; i < kRgNoteGoal; i++)
         {
@@ -244,7 +248,7 @@ void rg_create_note()
 
 void rg_move_note()
 {
-    if (clock() - g_last_move_time > 100)
+    if (clock() - g_last_move_time > g_move_time)
     {
         for (int i = 0; i < kRgNoteGoal; i++)
         {
@@ -281,6 +285,8 @@ void rg_hit_note()
                     g_combo++;
                     g_success++;
                     g_score += g_combo;
+                    g_create_time = g_score == 0 ? 300 : 300 - (g_score / 100 * 10);
+                    g_move_time = g_score == 0 ? 100 : 100 - (g_score / 100 * 5);
                     if (g_combo == 2)
                     {
                         g_hp++;
