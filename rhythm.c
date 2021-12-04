@@ -226,6 +226,8 @@ void rg_save_screen()
         gets_s(name, sizeof(name));
     } while (strlen(name) == 0);
 
+    fflush(stdin);
+
     save_data(name);
 
     rg_select_screen();
