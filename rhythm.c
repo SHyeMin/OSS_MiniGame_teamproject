@@ -38,6 +38,8 @@ static int g_combo;
 static float g_acc;
 static int g_hp;
 static int g_rg_player_size[3];
+static int g_create_time;
+static int g_move_time;
 static Note g_note[21];
 static clock_t g_last_create_time;
 static clock_t g_last_move_time;
@@ -72,6 +74,8 @@ void rg_game_init()
     g_miss = 0;
     g_combo = 0;
     g_hp = 10;
+    g_create_time = 300;
+    g_move_time = 100;
 
     for (int i = 0; i < kRgNoteGoal; i++)
         g_note[i].visible = FALSE;
@@ -175,7 +179,6 @@ void load_data()
         diff = atoi(strtok(NULL, ":"));
         score = atoi(strtok(NULL, ":"));
         g_rg_players[diff][g_rg_player_size[diff]++] = rg_make_player(name, score);
-
         memset(buffer, 0, sizeof(buffer));
     }
 
@@ -184,6 +187,19 @@ void load_data()
     rg_rank_sort(g_rg_players[2], 0, g_rg_player_size[2] - 1);
 
     fclose(fp);
+}
+
+int exist_nickname(char* name) 
+{
+    for (int i = 0; i < g_rg_player_size[g_rg_cur_diff]; i++)
+    {
+        if (strcmp(g_rg_players[g_rg_cur_diff][i].name, name) == 0)
+        {
+            return 1;
+        }
+    }
+
+    return 0;
 }
 
 void rg_select_screen()
@@ -216,9 +232,18 @@ void rg_save_screen()
     COORD cursor_position = { 0, 0 };
 
     system("cls");
-    printf("닉네임 : ");
 
-    gets_s(name, sizeof(name));
+    do {
+        printf("닉네임 : ");
+        gets_s(name, sizeof(name));
+
+        if (exist_nickname(name) == 1)
+            printf("이미 존재하는 닉네임입니다.\n");
+
+    } while (strlen(name) == 0 || exist_nickname(name) == 1);
+
+    fflush(stdin);
+
     save_data(name);
 
     rg_select_screen();
@@ -226,7 +251,7 @@ void rg_save_screen()
 
 void rg_create_note()
 {
-    if (clock() - g_last_create_time > 300)
+    if (clock() - g_last_create_time > g_create_time)
     {
         for (int i = 0; i < kRgNoteGoal; i++)
         {
@@ -244,7 +269,7 @@ void rg_create_note()
 
 void rg_move_note()
 {
-    if (clock() - g_last_move_time > 100)
+    if (clock() - g_last_move_time > g_move_time)
     {
         for (int i = 0; i < kRgNoteGoal; i++)
         {
@@ -281,6 +306,8 @@ void rg_hit_note()
                     g_combo++;
                     g_success++;
                     g_score += g_combo;
+                    g_create_time = g_score == 0 ? 300 : 300 - (g_score / 100 * 10);
+                    g_move_time = g_score == 0 ? 100 : 100 - (g_score / 100 * 5);
                     if (g_combo == 2)
                     {
                         g_hp++;
