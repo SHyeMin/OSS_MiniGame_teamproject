@@ -19,7 +19,7 @@ static int screenHeight;
 
 static char aceKeymap[] = "[C] 1점  [V] 11점";
 static char hitKeymap[] = "[Z] 히트  [X] 스탠드";
-static char exitKeymap[] = "[ENTER] 메인화면";
+static char exitKeymap[] = "[ESC] 메인화면";
 static char aceMsg[2][31] = { "A 카드가 나왔습니다.", "합산할 점수를 선택하세요." };
 static char winMsg[2][31] = { "당신이 더 21점에 가깝습니다.", "축하합니다, 당신의 승리입니다." };
 static char drawMsg[2][31] = { "서로 점수가 같습니다.", "무승부입니다." };
@@ -62,6 +62,7 @@ void renderGameScreen() {
 	for (int it = 0; it < 2; it++) {
 		for (int i = 1; i < screenWidth - 2; i++) {
 			print_screen(bjScreen, screenIndex, i, 0, "━");
+			
 			if (i == 15) {
 				print_screen(bjScreen, screenIndex, i, 6, "┳");
 				print_screen(bjScreen, screenIndex, i, 15, "┻");
@@ -70,18 +71,22 @@ void renderGameScreen() {
 				print_screen(bjScreen, screenIndex, i, 6, "━");
 				print_screen(bjScreen, screenIndex, i, 15, "━");
 			}
+
 			print_screen(bjScreen, screenIndex, i, screenHeight - 1, "━");
 		}
+		
 		for (int i = 0; i < 5; i++) {
 			print_screen(bjScreen, screenIndex, 0, 1 + i, "┃");
 			print_screen(bjScreen, screenIndex, screenWidth - 2, 1 + i, "┃");
 			print_screen(bjScreen, screenIndex, 0, 16 + i, "┃");
 			print_screen(bjScreen, screenIndex, screenWidth - 2, 16 + i, "┃");
 		}
+
 		for (int i = 1; i < 15; i++) {
 			print_screen(bjScreen, screenIndex, i, 8, "━");
 			print_screen(bjScreen, screenIndex, i, 13, "━");
 		}
+
 		print_screen(bjScreen, screenIndex, 0, 0, "┏");
 		print_screen(bjScreen, screenIndex, 0, 6, "┣");
 		print_screen(bjScreen, screenIndex, 0, 7, "┃");
@@ -90,10 +95,12 @@ void renderGameScreen() {
 		print_screen(bjScreen, screenIndex, 0, 14, "┃");
 		print_screen(bjScreen, screenIndex, 0, 15, "┣");
 		print_screen(bjScreen, screenIndex, 0, screenHeight - 1, "┗");
+
 		print_screen(bjScreen, screenIndex, 15, 7, "┃");
 		print_screen(bjScreen, screenIndex, 15, 8, "┛");
 		print_screen(bjScreen, screenIndex, 15, 13, "┓");
 		print_screen(bjScreen, screenIndex, 15, 14, "┃");
+
 		print_screen(bjScreen, screenIndex, screenWidth - 2, 0, "┓");
 		print_screen(bjScreen, screenIndex, screenWidth - 2, 6, "┛");
 		print_screen(bjScreen, screenIndex, screenWidth - 2, 15, "┓");
@@ -112,8 +119,7 @@ void clearLine(HANDLE screen[], int index, int left, int right, int line) {
 	FillConsoleOutputCharacter(screen[index], ' ', right - left, coord, &dw);
 }
 
-void clearSquare(HANDLE screen[], int index, int top, int left, int right, int bottom)
-{
+void clearSquare(HANDLE screen[], int index, int top, int left, int right, int bottom) {
 	COORD coord = { left, top };
 	DWORD dw;
 	FillConsoleOutputCharacter(screen[index], ' ', (right - left) * (bottom - top), coord, &dw);
@@ -142,15 +148,9 @@ void clearMessage() {
 	for (int i = 0; i < 2; i++) clearSquare(bjScreen, i, 9, 0, screenWidth - 1, 12);
 }
 
-void clearScore() {
-	for (int i = 0; i < 2; i++) {
-		clearLine(bjScreen, i, 12, 13, 14);
-		clearLine(bjScreen, i, 12, 13, 7);
-	}
-}
-
 void printScore() {
 	char buffer[3];
+
 	for (int i = 0; i < 2; i++) {
 		print_screen(bjScreen, screenIndex, 12, 14, itoa(scoreList[PLAYER], buffer, 10));
 
@@ -158,7 +158,7 @@ void printScore() {
 			print_screen(bjScreen, screenIndex, 12, 7, itoa(scoreList[DEALER], buffer, 10));
 		}
 		else {
-			print_screen(bjScreen, screenIndex, 12, 7, "??");
+			print_screen(bjScreen, screenIndex, 12, 7, "?");
 		}
 
 		flip_screen(bjScreen, &screenIndex);
@@ -205,22 +205,28 @@ void printCard(int id, int suitId, int numId, int count) {
 	
 	if (id == PLAYER) {
 		for (int i = 0; i < 2; i++) {
-			print_screen(bjScreen, i, 1 + (count * 8), 16, card1);
-			print_screen(bjScreen, i, 1 + (count * 8), 17, card2);
-			print_screen(bjScreen, i, 1 + (count * 8), 18, card3);
-			print_screen(bjScreen, i, 1 + (count * 8), 19, card4);
-			print_screen(bjScreen, i, 1 + (count * 8), 20, card5);
+			print_screen(bjScreen, screenIndex, 1 + (count * 8), 16, card1);
+			print_screen(bjScreen, screenIndex, 1 + (count * 8), 17, card2);
+			print_screen(bjScreen, screenIndex, 1 + (count * 8), 18, card3);
+			print_screen(bjScreen, screenIndex, 1 + (count * 8), 19, card4);
+			print_screen(bjScreen, screenIndex, 1 + (count * 8), 20, card5);
+			flip_screen(bjScreen, &screenIndex);
 		}
 	}
 	else if (id == DEALER) {
 		for (int i = 0; i < 2; i++) {
-			print_screen(bjScreen, i, 1 + (count * 8), 1, card1);
-			print_screen(bjScreen, i, 1 + (count * 8), 2, card2);
-			print_screen(bjScreen, i, 1 + (count * 8), 3, card3);
-			print_screen(bjScreen, i, 1 + (count * 8), 4, card4);
-			print_screen(bjScreen, i, 1 + (count * 8), 5, card5);
+			print_screen(bjScreen, screenIndex, 1 + (count * 8), 1, card1);
+			print_screen(bjScreen, screenIndex, 1 + (count * 8), 2, card2);
+			print_screen(bjScreen, screenIndex, 1 + (count * 8), 3, card3);
+			print_screen(bjScreen, screenIndex, 1 + (count * 8), 4, card4);
+			print_screen(bjScreen, screenIndex, 1 + (count * 8), 5, card5);
+			flip_screen(bjScreen, &screenIndex);
 		}
 	}
+}
+
+void openCard() {
+	printCard(DEALER, hidden[0], hidden[1], 0);
 }
 
 int selectAceScore() {
@@ -228,11 +234,18 @@ int selectAceScore() {
 	clearMessage();
 	printKeymap(aceKeymap);
 	printMessage(aceMsg);
+
 	while (1) {
-		if (_kbhit) {
-			if (_getch() == 'c') return 1;
-			else if (_getch() == 'v') return 11;
+		if (_kbhit()) {
+			switch (_getch()) {
+			case 'c':
+				return 1;
+			case 'v':
+				return 11;
+			}
 		}
+
+		flip_screen(bjScreen, &screenIndex);
 	}
 }
 
@@ -242,8 +255,10 @@ void hit(int id) {
 	while (1) {
 		srand((unsigned int)time(NULL));
 		suitId = rand() % 4;
+
 		srand((unsigned int)time(NULL));
 		numId = rand() % 13;
+
 		if (cardList[suitId][numId] == 0) continue;
 		else if (cardList[suitId][numId] == 1) {
 			cardList[suitId][numId] = 0;
@@ -264,16 +279,19 @@ void hit(int id) {
 
 	countList[id]++;
 	scoreList[id] += score;
+
 	printScore();
 	clearKeymap();
 	clearMessage();
-	Sleep(600);
+	Sleep(1000);
 
 	if (scoreList[PLAYER] >= 21) {
 		clearKeymap();
-		printCard(DEALER, hidden[0], hidden[1], 0);
+		openCard();
+
 		if (scoreList[PLAYER] == 21) printMessage(plBjMsg);
 		else printMessage(plBustMsg);
+
 		status = RESULT;
 	}
 }
@@ -292,8 +310,10 @@ void bjUpdate() {
 				for (int i = 0; i < 4; i++) {
 					for (int j = 0; j < 13; j++) cardList[i][j] = 1;
 				}
+
 				status = GAME_INIT;
 			}
+
 			if (titleCursor == 1) status = RULE;
 			else if (titleCursor == 2) status = TITLE_END;
 		}
@@ -309,6 +329,7 @@ void bjUpdate() {
 		else if (scoreList[PLAYER] >= 21) {
 			if (scoreList[PLAYER] == 21) printMessage(plBjMsg);
 			else printMessage(plBustMsg);
+
 			status = RESULT;
 		}
 	}
@@ -316,13 +337,19 @@ void bjUpdate() {
 		printKeymap(hitKeymap);
 
 		if (_kbhit()) {
-			if (_getch() == 'z') {
+			switch (_getch()) {
+			case 'z':
 				hit(PLAYER);
-			}
-			else if (_getch() == 'x') {
+				break;
+			case 'x':
 				clearKeymap();
+
 				status = GAME_DEALER;
-				printCard(DEALER, hidden[0], hidden[1], 0);
+
+				openCard();
+				printScore();
+				Sleep(1000);
+				break;
 			}
 		}
 	}
@@ -342,7 +369,7 @@ void bjUpdate() {
 		status = RESULT;
 	}
 	else if (status == RESULT) {
-		if (GetAsyncKeyState(VK_RETURN) & 0x0001) {
+		if (_getch() == 27) {
 			for (int i = 0; i < 2; i++) clear_screen(bjScreen, i, screenWidth, screenHeight);
 			screenWidth = kWidth, screenHeight = kHeight;
 			change_screen(bjScreen, screenWidth, screenHeight);
@@ -354,16 +381,18 @@ void bjUpdate() {
 void bjRender() {
 	if (status == TITLE_SELECT) {
 		renderTitleScreen();
+		flip_screen(bjScreen, &screenIndex);
 	}
 	else if (status == GAME_INIT || status == GAME_PLAYER || status == GAME_DEALER) {
 		renderGameScreen();
 	}
 	else if (status == RESULT) {
+		openCard();
 		printScore();
-		renderGameScreen();
 		printKeymap(exitKeymap);
+		renderGameScreen();
+		flip_screen(bjScreen, &screenIndex);
 	}
-	flip_screen(bjScreen, &screenIndex);
 }
 
 int bj_main() {
