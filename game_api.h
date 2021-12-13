@@ -9,7 +9,13 @@ enum eStatusCode
     kStatus_Play,
     kStatus_Save,
     kStatus_Rank,
-    kStatus_End
+    kStatus_End,
+    KStatus_E_Start,
+    KStatus_M_Start,
+    KStatus_H_Start,
+    KStatus_Set,
+    KStatus_Result,
+    KStatus_Change
 };
 typedef int StatusCode;
 
