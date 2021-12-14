@@ -2,7 +2,15 @@
 #include <stdio.h>
 #include <Windows.h>
 #include <time.h>
+#include <stdlib.h>
 #include "setting.h"
 #include "game_api.h"
-
+#include <memory.h>
+#include <conio.h>
 int mg_main(); 
+void mg_easy();
+void mg_medium();
+void mg_hard();
+void mg_show_screen();
+void mg_sel_squ();
+void rg_show_sel_squ();
